@@ -2,6 +2,8 @@
 # Can be played solo (vs. AI) or two-player
 
 import try_type
+from board_module import *
+from player_module import *
 
 NAME_LENGTH_MIN = 3
 NAME_LENGTH_MAX = 16
@@ -12,12 +14,39 @@ GOAL_SIZE_MAX = 7
 BOARD_DIMENSION_MIN = { 3:5, 4:6, 5:7, 6:8, 7:9 }
 BOARD_DIMENSION_MAX = { 3:7, 4:9, 5:11, 6:13, 7:15 }
 
+PLAYER_SYMBOLS = { '1':'X', '2':'O' }
+
 def main():
     print("Welcome to Konnect X, the X-in-a-row game!")
     #---player details---#
     players = init_players()
     #---board details---#
     board = init_board()
+    play_game(players, board)
+    return
+
+def play_game(players, board):
+    turn = 1
+    print("Connect " + str(board.goal) + "-in-a-row to win!")
+    board.print_board()
+    winner = None
+    while winner == None:
+        for p in players.values():
+            winner = board.detect_win()
+            if winner != None:
+                print(str(players['1'].name if winner == players['1'].symbol
+                    else players['2'].name) + " wins!")
+                break
+            if board.detect_end():
+                winner = 0
+                print("It's a tie!")
+                break
+            print("".join(["-" for _ in range(board.get_width() * 2 + 1)]))
+            print("Turn " + str(turn) + " for " + p.name)
+            move = p.play_move(board)
+            print(p.name + " put their piece in column " + str(move + 1) + ".")
+            board.print_board()
+        turn += 1
     return
 
 def init_players():
@@ -46,9 +75,11 @@ def init_players():
         print("Player " + key + " is called " + player_name
             + " and is a " + ("computer" if player_ai else "human")
             + "!")
-        #TODO: players[key] = new_player(player_name, player_ai)
-    #return players
-    return None
+        if player_ai:
+            players[key] = ComputerPlayer(player_name, PLAYER_SYMBOLS[key])
+        else:
+            players[key] = HumanPlayer(player_name, PLAYER_SYMBOLS[key])
+    return players
 
 def init_board():
     goal_length = None
@@ -97,7 +128,7 @@ def init_board():
                 board_height = input_height
         else:
             print("Please enter an integer value!")
-    return None
+    return Board(goal_length, board_width, board_height)
 
 if __name__ == '__main__':
     main()
