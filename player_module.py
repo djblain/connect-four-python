@@ -34,7 +34,7 @@ class HumanPlayer(Player):
 
 
 #---Computer Player Class---#
-SEARCH_DEPTH = 4
+SEARCH_DEPTH = 6
 
 class ComputerPlayer(Player):
 
