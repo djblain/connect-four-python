@@ -2,6 +2,15 @@
 
 from try_type import *
 
+def board_clone(board):
+    new_board = Board(board.goal, board.get_width(), board.get_height())
+    for c in range(board.get_width()):
+        for r in range(board.get_height()):
+            new_board.board[c][r] = board.board[c][r]
+    for v in range(board.get_width()):
+        new_board.column_top[v] = board.column_top[v]
+    return new_board
+
 class Board:
     def __init__(self, goal, width, height):
         self.goal = goal
@@ -29,13 +38,14 @@ class Board:
         return True
 
     def print_board(self):
-        print("".join([(" " + str(i+1)) for i in range(self.get_width())]))
+        print("\n" + "".join([(" " + str(i+1)) for i
+            in range(self.get_width())]))
         for row in range(self.get_height()-1,-1,-1):
             print("".join(["+-" for _ in self.board]) + "+")
             print("".join(["|" + (" " if self.board[col][row] == None else
                 self.board[col][row]) for col in
                 range(self.get_width())]) + "|")
-        print("".join(["+-" for _ in self.board]) + "+")
+        print("".join(["+-" for _ in self.board]) + "+\n")
 
     def check_line_match(self, column, row, col_delta, row_delta, length):
         ci = 0
@@ -45,7 +55,7 @@ class Board:
             ri += row_delta
             if (column + ci >= self.get_width() or column + ci < 0):
                 return False
-            if (row + ri >= self.get_width() or row + ri < 0):
+            if (row + ri >= self.get_height() or row + ri < 0):
                 return False
             if (self.board[column][row] != self.board[column + ci][row + ri]):
                 return False
@@ -55,7 +65,7 @@ class Board:
         for c in range(self.get_width()):
             for r in range(self.get_height()):
                 if self.board[c][r] == None:
-                    continue
+                    break
                 # check horizontal
                 if self.check_line_match(c,r,1,0,self.goal):
                     return self.board[c][r]

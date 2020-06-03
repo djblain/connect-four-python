@@ -2,6 +2,7 @@
 # Can be played solo (vs. AI) or two-player
 
 import try_type
+import random
 from board_module import *
 from player_module import *
 
@@ -17,37 +18,50 @@ BOARD_DIMENSION_MAX = { 3:7, 4:9, 5:11, 6:13, 7:15 }
 PLAYER_SYMBOLS = { '1':'X', '2':'O' }
 
 def main():
+    random.seed()
     print("Welcome to Konnect X, the X-in-a-row game!")
     #---player details---#
     players = init_players()
     #---board details---#
     board = init_board()
-    play_game(players, board)
+    play_game(players['1'], players['2'], board)
     return
 
-def play_game(players, board):
+def play_game(player_one, player_two, board):
     turn = 1
     print("Connect " + str(board.goal) + "-in-a-row to win!")
     board.print_board()
-    winner = None
-    while winner == None:
-        for p in players.values():
-            winner = board.detect_win()
-            if winner != None:
-                print(str(players['1'].name if winner == players['1'].symbol
-                    else players['2'].name) + " wins!")
-                break
-            if board.detect_end():
-                winner = 0
-                print("It's a tie!")
-                break
-            print("".join(["-" for _ in range(board.get_width() * 2 + 1)]))
-            print("Turn " + str(turn) + " for " + p.name)
-            move = p.play_move(board)
-            print(p.name + " put their piece in column " + str(move + 1) + ".")
-            board.print_board()
+    while True:
+        if play_move(player_one, player_two, board, turn):
+            break
+        if play_move(player_two, player_one, board, turn):
+            break
         turn += 1
     return
+
+def play_move(player, other_player, board, turn):
+    print("".join(["-" for _ in range(board.get_width() * 2 + 1)]))
+    print("Turn " + str(turn) + " for " + player.name)
+    move = player.play_move(board, other_player)
+    board.print_board()
+    print(player.name + " put their piece in column " + str(move + 1) + ".")
+    if check_win(player, board):
+        return True
+    if check_tie(board):
+        return True
+    return False
+
+def check_win(player, board):
+    if player.symbol == board.detect_win():
+        print(str(player.name) + " has won the game!")
+        return True
+    return False
+
+def check_tie(board):
+    if board.detect_end():
+        print("Game is tied!")
+        return True
+    return False
 
 def init_players():
     players = { '1': None, '2':None }
